@@ -32,7 +32,7 @@
         #map { height: 100%; width: 100%; background-color: #aadaff; z-index: 1; }
 
         #info-overlay {
-            position: absolute; bottom: 20px; left: 50%; width: 95%; max-width: 1300px;
+            position: absolute; bottom: 10px; left: 50%; width: 95%; max-width: 1300px;
             background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
             padding: 20px; z-index: 1000;
@@ -83,7 +83,7 @@
             cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        /* --- REVISI CSS RESPONSIVE --- */
+        /* --- REVISI CSS RESPONSIVE & ACCORDION --- */
         @media (max-width: 800px) {
             .pane-toggle-btn { display: block; }
 
@@ -93,37 +93,66 @@
             }
             .bus-list-pane.visible { transform: translateX(0); }
 
-            /* Ukuran proporsional untuk tablet */
-            #info-overlay {
-                padding: 12px; /* Perkecil padding overlay */
-                width: 92%;
-                bottom: 10px;
-            }
+            /* Grid dan Overlay disesuaikan */
+            #info-overlay { padding: 10px; width: 92%; }
             .widgets-section {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px; /* Perkecil jarak antar widget */
+                grid-template-columns: 1fr; /* Selalu 1 kolom di mobile */
+                gap: 8px;
             }
+
+            /* == LOGIKA ACCORDION == */
+
+            /* Tampilan widget default (terciut/collapsed) */
             .widget {
-                padding: 12px; /* Perkecil padding widget */
+                padding: 10px 15px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+                overflow: hidden;
             }
-            /* Perkecil ukuran font dan elemen di dalamnya */
-            .widget-value { font-size: 22px; }
-            .sub-value { font-size: 16px; }
-            .widget-title { font-size: 14px; }
-            .widget-description { font-size: 12px; }
-            hr { margin: 8px 0 !important; }
-            .inspection-button { padding: 6px 10px; font-size: 12px; }
+            .widget .widget-header {
+                position: relative;
+                margin-bottom: 0; /* Hapus margin bawah saat terlipat */
+            }
+            /* Indikator panah (chevron) */
+            .widget .widget-header::after {
+                content: '\f078';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                position: absolute;
+                right: 5px; top: 50%;
+                transform: translateY(-50%) rotate(0deg);
+                transition: transform 0.4s ease;
+            }
+            .widget-value, .sub-value { font-size: 18px; }
+
+            /* Sembunyikan detail widget secara default */
+            .widget-details {
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+                transition: max-height 0.4s ease-out, opacity 0.3s ease-in;
+            }
+            
+            /* Tampilan widget saat terbuka (expanded) */
+            .widget.expanded {
+                background-color: rgba(223, 228, 230, 0.9);
+            }
+            .widget.expanded .widget-header::after {
+                transform: translateY(-50%) rotate(180deg); /* Panah ke atas */
+            }
+            .widget.expanded .widget-details {
+                max-height: 200px; /* Tinggi maksimal saat terbuka */
+                opacity: 1;
+                padding-top: 10px;
+            }
+
+            /* Ukuran font di dalam detail yang terbuka */
+            .widget.expanded .widget-description { font-size: 12px; }
+            .widget.expanded .sub-value { font-size: 16px; margin-top: 5px; }
+            .widget.expanded .inspection-button { padding: 6px 10px; font-size: 12px; }
+            .widget.expanded hr { margin: 8px 0 !important; }
         }
 
-        @media (max-width: 600px) {
-            /* Di layar HP, ubah grid menjadi 1 kolom agar tidak penuh */
-            .widgets-section {
-                grid-template-columns: 1fr;
-            }
-            /* Perkecil lagi agar lebih pas di layar hp vertikal */
-            .widget-value { font-size: 20px; }
-            .sub-value { font-size: 15px; }
-        }
     </style>
 </head>
 <body>
@@ -135,31 +164,41 @@
             <div id="info-overlay">
                 <section class="widgets-section">
                      <div class="widget">
-                        <div class="widget-header"><i class="fas fa-users widget-icon"></i><h3 class="widget-title">Penumpang</h3></div>
-                        <div class="widget-value" id="passenger-count">0</div>
-                        <p class="widget-description">Total Penumpang</p>
-                        <hr style="border-color: #ccc; margin: 10px 0;">
-                        <div class="sub-value"><i class="fas fa-ticket-alt"></i><span id="checked-in-count">0</span></div>
-                        <p class="widget-description">Sudah Check-In</p>
+                        <div class="widget-header">
+                            <i class="fas fa-users widget-icon"></i><h3 class="widget-title">Penumpang</h3>
+                        </div>
+                        <div class="widget-details">
+                            <div class="widget-value" id="passenger-count">0</div>
+                            <p class="widget-description">Total Penumpang</p>
+                            <hr>
+                            <div class="sub-value"><i class="fas fa-ticket-alt"></i><span id="checked-in-count">0</span></div>
+                            <p class="widget-description">Sudah Check-In</p>
+                        </div>
                     </div>
                     <div class="widget">
                         <div class="widget-header"><i class="fas fa-suitcase-rolling widget-icon"></i><h3 class="widget-title">Okupansi Bagasi</h3></div>
-                        <div class="widget-value" id="baggage-occupancy">0%</div>
-                        <div class="progress-container"><div class="progress-bar" id="baggage-fill"></div></div>
-                        <button class="inspection-button"><i class="fas fa-search"></i> Inspeksi</button>
+                        <div class="widget-details">
+                            <div class="widget-value" id="baggage-occupancy">0%</div>
+                            <div class="progress-container"><div class="progress-bar" id="baggage-fill"></div></div>
+                            <button class="inspection-button"><i class="fas fa-search"></i> Inspeksi</button>
+                        </div>
                     </div>
                     <div class="widget">
                         <div class="widget-header"><i class="fas fa-clock widget-icon"></i><h3 class="widget-title">Status Bus</h3></div>
-                        <div class="widget-value" id="bus-op-time">00:00:00</div>
-                        <p class="widget-description">Lama Beroperasi</p>
-                        <hr style="border-color: #ccc; margin: 10px 0;">
-                        <div class="sub-value" id="distance-traveled">0.0 km</div>
-                        <p class="widget-description">Jarak Ditempuh</p>
+                        <div class="widget-details">
+                            <div class="widget-value" id="bus-op-time">00:00:00</div>
+                            <p class="widget-description">Lama Beroperasi</p>
+                            <hr>
+                            <div class="sub-value" id="distance-traveled">0.0 km</div>
+                            <p class="widget-description">Jarak Ditempuh</p>
+                        </div>
                     </div>
                     <div class="widget">
                         <div class="widget-header"><i class="fas fa-user-shield widget-icon"></i><h3 class="widget-title">Kondisi Pengemudi</h3></div>
-                        <div class="widget-value" id="driver-fatigue-status">00:00:00</div>
-                        <p class="widget-description">Total Waktu Mengemudi</p>
+                        <div class="widget-details">
+                            <div class="widget-value" id="driver-fatigue-status">00:00:00</div>
+                            <p class="widget-description">Total Waktu Mengemudi</p>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -197,7 +236,27 @@
         function displayBusInfo(busElement){const status=busElement.dataset.status;const busId=busElement.dataset.id;stopAllTimers();resetDisplayValues();infoOverlay.classList.remove('visible');placeholder.style.display='block';if(busMarker)map.removeLayer(busMarker);if(status==='active'){placeholder.textContent=`Memuat data untuk bus ${busId}...`;busMarker=L.marker([-6.9175,107.6191],{icon:L.divIcon({className:'fas fa-bus-alt',iconSize:[24,24],html:'<i class="fas fa-bus-alt" style="color: #5a9bd4; font-size: 24px;"></i>'})}).addTo(map);map.setView(busMarker.getLatLng(),13);animateMarker(busMarker);setTimeout(()=>{updateRandomData();startIncrementalTimers();infoOverlay.classList.add('visible');placeholder.style.display='none'},500)}else{placeholder.innerHTML=`<i class="fas fa-exclamation-triangle"></i><p>Bus ${busId} tidak sedang beroperasi.</p>`}}
         fleetListItems.forEach(item=>{item.addEventListener('click',()=>{fleetListItems.forEach(i=>i.classList.remove('selected'));item.classList.add('selected');displayBusInfo(item);if(window.innerWidth<=800){busListPane.classList.remove('visible')}})});
         paneToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); busListPane.classList.toggle('visible'); });
-        document.addEventListener('click', (e) => { if (busListPane.classList.contains('visible') && !busListPane.contains(e.target) && e.target !== paneToggleBtn) { busListPane.classList.remove('visible'); } });
+        document.addEventListener('click', (e) => { if (busListPane.classList.contains('visible') && !busListPane.contains(e.target)) { busListPane.classList.remove('visible'); } });
+
+        // --- REVISI JAVASCRIPT: LOGIKA ACCORDION ---
+        document.querySelectorAll('.widget').forEach(widget => {
+            widget.addEventListener('click', function(e) {
+                // Hanya jalankan jika lebar layar mobile
+                if (window.innerWidth <= 800) {
+                    // Cek jika yang diklik adalah tombol inspeksi, jangan jalankan accordion
+                    if (e.target.classList.contains('inspection-button') || e.target.parentElement.classList.contains('inspection-button')) {
+                        alert('Memulai inspeksi bagasi...');
+                        return; // Hentikan fungsi agar accordion tidak tertutup
+                    }
+
+                    const isExpanded = this.classList.contains('expanded');
+                    document.querySelectorAll('.widget').forEach(w => w.classList.remove('expanded'));
+                    if (!isExpanded) {
+                        this.classList.add('expanded');
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
