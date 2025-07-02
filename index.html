@@ -9,14 +9,18 @@
     <style>
         :root {
             --primary: #5d6d7e;
-            --secondary: #3498db;
+            --secondary: #5a9bd4; /* Warna biru yang lebih soft */
             --success: #27ae60;
             --warning: #f39c12;
             --danger: #e74c3c;
             --light: #ecf0f1;
             --dark: #2c3e50;
-            --bg-pane: #1f2937;
-            --text-light: #e5e7eb;
+            /* REVISI WARNA: Skema warna abu-abu gelap yang lembut */
+            --pane-bg: #2d3436;
+            --pane-bg-gradient: linear-gradient(180deg, #2d3436 0%, #1d2123 100%);
+            --pane-text: #dfe6e9;
+            --pane-hover: #4b5457;
+            --pane-border: #525c5f;
         }
 
         body {
@@ -28,68 +32,22 @@
             overflow: hidden;
         }
         
-        /* --- Layout Utama --- */
-        .dashboard-layout {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
+        .dashboard-layout { display: flex; height: 100vh; width: 100vw; }
+        .main-content { flex-grow: 1; position: relative; }
+        #map { height: 100%; width: 100%; background-color: #aadaff; }
 
-        /* --- Kontainer Peta dan Info (Bagian Kiri) --- */
-        .main-content {
-            flex-grow: 1;
-            position: relative;
-        }
-
-        #map {
-            height: 100%;
-            width: 100%;
-            background-color: #aadaff;
-        }
-
-        /* --- Overlay Info Glassmorphism di Bawah --- */
         #info-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 1300px;
-            
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-            
-            padding: 20px;
-            z-index: 1000;
-            
+            position: absolute; bottom: 20px; left: 50%;
+            width: 95%; max-width: 1300px;
+            background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            padding: 20px; z-index: 1000;
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-            opacity: 0;
-            transform: translate(-50%, 120%); /* Mulai dari bawah layar */
+            opacity: 0; transform: translate(-50%, 120%);
         }
-
-        #info-overlay.visible {
-            opacity: 1;
-            transform: translate(-50%, 0); /* Muncul ke posisi akhir */
-        }
-
-        .widgets-section {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 kolom */
-            gap: 20px;
-            background: transparent;
-        }
-        
-        .widget {
-            background-color: rgba(236, 240, 241, 0.85);
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
+        #info-overlay.visible { opacity: 1; transform: translate(-50%, 0); }
+        .widgets-section { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; background: transparent; }
+        .widget { background-color: rgba(236, 240, 241, 0.85); border-radius: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .widget-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
         .widget-title { margin: 0; font-size: 16px; color: var(--dark); font-weight: 600; }
         .widget-icon { font-size: 18px; color: var(--secondary); }
@@ -98,22 +56,59 @@
         .sub-value { font-size: 18px; font-weight: 600; color: var(--dark); display: flex; align-items: center; gap: 8px; }
         .progress-container { width: 100%; height: 10px; background-color: rgba(0,0,0,0.1); border-radius: 6px; margin-top: 8px; }
         .progress-bar { height: 100%; border-radius: 6px; background-color: var(--success); transition: width 0.5s ease-in-out; }
-
-        .inspection-button {
-            background-color: var(--secondary); color: white; border: none; padding: 8px 12px;
-            border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: 10px;
-            transition: background-color 0.2s;
-        }
+        .inspection-button { background-color: var(--secondary); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: 10px; transition: background-color 0.2s; }
         .inspection-button:hover { background-color: var(--dark); }
-
-        /* --- Panel Daftar Bus (Bagian Kanan) --- */
-        .bus-list-pane { width: 320px; flex-shrink: 0; background-color: var(--bg-pane); color: var(--text-light); padding: 25px; box-shadow: -5px 0 15px rgba(0,0,0,0.2); z-index: 1001; overflow-y: auto; }
-        .pane-header { font-size: 22px; font-weight: 600; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #4b5563; }
+        
+        /* --- REVISI PANEL DAFTAR BUS --- */
+        .bus-list-pane {
+            width: 300px; /* Sedikit lebih ramping */
+            flex-shrink: 0;
+            background: var(--pane-bg-gradient); /* Menggunakan gradient untuk kedalaman */
+            color: var(--pane-text);
+            padding: 20px 10px 20px 20px; /* Padding disesuaikan */
+            box-shadow: -5px 0 25px rgba(0,0,0,0.3);
+            z-index: 1001;
+            overflow-y: auto;
+            border-left: 1px solid var(--pane-border);
+        }
+        .pane-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--pane-border);
+            padding-left: 5px; /* Sedikit indentasi */
+        }
         .bus-list { list-style: none; padding: 0; margin: 0; }
-        .bus-list li { display: flex; align-items: center; padding: 15px; margin-bottom: 10px; border-radius: 10px; cursor: pointer; transition: background-color 0.2s ease-in-out; font-size: 16px; }
-        .bus-list li:hover { background-color: #374151; }
-        .bus-list li.selected { background-color: var(--secondary); font-weight: bold; }
-        .status-dot { height: 12px; width: 12px; border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
+        .bus-list li {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px; /* Padding lebih kecil agar lebih padat */
+            margin-bottom: 8px; /* Jarak antar item lebih kecil */
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            font-size: 15px;
+            border: 1px solid transparent; /* Border transparan untuk hover */
+            position: relative; /* Untuk perspektif */
+        }
+        .bus-list li:hover {
+            background-color: var(--pane-hover);
+            transform: translateX(-5px) scale(1.02); /* Efek perspektif saat hover */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: var(--pane-border);
+        }
+        .bus-list li.selected {
+            background-color: var(--secondary);
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 2px 8px rgba(90, 155, 212, 0.4);
+        }
+        .status-dot {
+            height: 10px; width: 10px; /* Dot lebih kecil */
+            border-radius: 50%; margin-right: 15px; flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
         .status-dot.active { background-color: #34d399; }
         .status-dot.inactive { background-color: #ef4444; }
         
@@ -178,125 +173,21 @@
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // --- Inisialisasi Peta Leaflet ---
         const map = L.map('map').setView([-6.9175, 107.6191], 8);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
         }).addTo(map);
-
-        // --- Variabel Global ---
-        let opTimer, fatigueTimer, distanceTimer, markerAnimation;
-        let busMarker = null;
-
+        let opTimer, fatigueTimer, distanceTimer, markerAnimation, busMarker = null;
         const infoOverlay = document.getElementById('info-overlay');
         const fleetListItems = document.querySelectorAll('#fleetList li');
         const placeholder = document.getElementById('bus-info-placeholder');
-        
-        // --- Fungsi Logika ---
-        function startIncrementalTimers() {
-            let opSeconds = 0, fatigueSeconds = 0, distance = 0.0;
-            
-            // Timer Waktu Operasi
-            opTimer = setInterval(() => {
-                opSeconds++;
-                const h = Math.floor(opSeconds / 3600).toString().padStart(2, '0');
-                const m = Math.floor((opSeconds % 3600) / 60).toString().padStart(2, '0');
-                const s = (opSeconds % 60).toString().padStart(2, '0');
-                document.getElementById('bus-op-time').textContent = `${h}:${m}:${s}`;
-            }, 1000);
-
-            // Timer Kelelahan Pengemudi
-            fatigueTimer = setInterval(() => {
-                fatigueSeconds++;
-                const h = Math.floor(fatigueSeconds / 3600).toString().padStart(2, '0');
-                const m = Math.floor((fatigueSeconds % 3600) / 60).toString().padStart(2, '0');
-                const s = (fatigueSeconds % 60).toString().padStart(2, '0');
-                document.getElementById('driver-fatigue-status').textContent = `${h}:${m}:${s}`;
-            }, 1000);
-            
-            // Timer Jarak Tempuh (lebih lambat)
-            distanceTimer = setInterval(() => {
-                distance += Math.random() * 0.15; // Kecepatan acak lambat
-                document.getElementById('distance-traveled').textContent = `${distance.toFixed(1)} km`;
-            }, 2000); // Update setiap 2 detik
-        }
-
-        function stopAllTimers() {
-            [opTimer, fatigueTimer, distanceTimer, markerAnimation].forEach(timer => clearInterval(timer));
-        }
-        
-        function resetDisplayValues() {
-            document.getElementById('bus-op-time').textContent = '00:00:00';
-            document.getElementById('driver-fatigue-status').textContent = '00:00:00';
-            document.getElementById('distance-traveled').textContent = '0.0 km';
-            document.getElementById('passenger-count').textContent = '0';
-            document.getElementById('checked-in-count').textContent = '0';
-            document.getElementById('baggage-occupancy').textContent = '0%';
-            document.getElementById('baggage-fill').style.width = '0%';
-        }
-
-        function updateRandomData() {
-            const passengerCount = Math.floor(Math.random() * 40) + 1;
-            document.getElementById('passenger-count').textContent = passengerCount;
-            document.getElementById('checked-in-count').textContent = Math.floor(Math.random() * passengerCount);
-            
-            const baggageOccupancy = Math.floor(Math.random() * 101);
-            document.getElementById('baggage-occupancy').textContent = `${baggageOccupancy}%`;
-            const fill = document.getElementById('baggage-fill');
-            fill.style.width = `${baggageOccupancy}%`;
-            fill.style.backgroundColor = baggageOccupancy > 85 ? 'var(--danger)' : baggageOccupancy > 60 ? 'var(--warning)' : 'var(--success)';
-        }
-
-        function animateMarker(marker) {
-            const initialLatLng = marker.getLatLng();
-            markerAnimation = setInterval(() => {
-                const lat = marker.getLatLng().lat + (Math.random() - 0.5) * 0.001;
-                const lng = marker.getLatLng().lng + (Math.random() - 0.5) * 0.001;
-                marker.setLatLng([lat, lng]);
-            }, 1500); // Update posisi marker setiap 1.5 detik
-        }
-        
-        function displayBusInfo(busElement) {
-            const status = busElement.dataset.status;
-            const busId = busElement.dataset.id;
-            
-            // Reset semua kondisi
-            stopAllTimers();
-            resetDisplayValues();
-            infoOverlay.classList.remove('visible');
-            placeholder.style.display = 'block';
-            if(busMarker) map.removeLayer(busMarker);
-            
-            if (status === 'active') {
-                placeholder.textContent = `Memuat data untuk bus ${busId}...`;
-                
-                // Tambahkan marker baru dan animasi
-                busMarker = L.marker([-6.9175, 107.6191], {
-                    icon: L.divIcon({ className: 'fas fa-bus-alt', iconSize: [24, 24], html: '<i class="fas fa-bus-alt" style="color: #3498db; font-size: 24px;"></i>' })
-                }).addTo(map);
-                map.setView(busMarker.getLatLng(), 13);
-                animateMarker(busMarker);
-
-                setTimeout(() => {
-                    updateRandomData();
-                    startIncrementalTimers();
-                    infoOverlay.classList.add('visible');
-                    placeholder.style.display = 'none';
-                }, 500);
-
-            } else {
-                placeholder.innerHTML = `<i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i><p>Bus ${busId} tidak sedang beroperasi.</p>`;
-            }
-        }
-        
-        // --- Event Listeners ---
-        fleetListItems.forEach(item => {
-            item.addEventListener('click', () => {
-                fleetListItems.forEach(i => i.classList.remove('selected'));
-                item.classList.add('selected');
-                displayBusInfo(item);
-            });
-        });
+        function startIncrementalTimers(){let opSeconds=0,fatigueSeconds=0,distance=0.0;opTimer=setInterval(()=>{opSeconds++;const h=Math.floor(opSeconds/3600).toString().padStart(2,'0');const m=Math.floor((opSeconds%3600)/60).toString().padStart(2,'0');const s=(opSeconds%60).toString().padStart(2,'0');document.getElementById('bus-op-time').textContent=`${h}:${m}:${s}`},1000);fatigueTimer=setInterval(()=>{fatigueSeconds++;const h=Math.floor(fatigueSeconds/3600).toString().padStart(2,'0');const m=Math.floor((fatigueSeconds%3600)/60).toString().padStart(2,'0');const s=(fatigueSeconds%60).toString().padStart(2,'0');document.getElementById('driver-fatigue-status').textContent=`${h}:${m}:${s}`},1000);distanceTimer=setInterval(()=>{distance+=Math.random()*0.15;document.getElementById('distance-traveled').textContent=`${distance.toFixed(1)} km`},2000)}
+        function stopAllTimers(){[opTimer,fatigueTimer,distanceTimer,markerAnimation].forEach(timer=>clearInterval(timer))}
+        function resetDisplayValues(){document.getElementById('bus-op-time').textContent='00:00:00';document.getElementById('driver-fatigue-status').textContent='00:00:00';document.getElementById('distance-traveled').textContent='0.0 km';document.getElementById('passenger-count').textContent='0';document.getElementById('checked-in-count').textContent='0';document.getElementById('baggage-occupancy').textContent='0%';document.getElementById('baggage-fill').style.width='0%'}
+        function updateRandomData(){const passengerCount=Math.floor(Math.random()*40)+1;document.getElementById('passenger-count').textContent=passengerCount;document.getElementById('checked-in-count').textContent=Math.floor(Math.random()*passengerCount);const baggageOccupancy=Math.floor(Math.random()*101);document.getElementById('baggage-occupancy').textContent=`${baggageOccupancy}%`;const fill=document.getElementById('baggage-fill');fill.style.width=`${baggageOccupancy}%`;fill.style.backgroundColor=baggageOccupancy>85?'var(--danger)':baggageOccupancy>60?'var(--warning)':'var(--success)'}
+        function animateMarker(marker){markerAnimation=setInterval(()=>{const lat=marker.getLatLng().lat+(Math.random()-0.5)*0.001;const lng=marker.getLatLng().lng+(Math.random()-0.5)*0.001;marker.setLatLng([lat,lng])},1500)}
+        function displayBusInfo(busElement){const status=busElement.dataset.status;const busId=busElement.dataset.id;stopAllTimers();resetDisplayValues();infoOverlay.classList.remove('visible');placeholder.style.display='block';if(busMarker)map.removeLayer(busMarker);if(status==='active'){placeholder.textContent=`Memuat data untuk bus ${busId}...`;busMarker=L.marker([-6.9175,107.6191],{icon:L.divIcon({className:'fas fa-bus-alt',iconSize:[24,24],html:'<i class="fas fa-bus-alt" style="color: #5a9bd4; font-size: 24px;"></i>'})}).addTo(map);map.setView(busMarker.getLatLng(),13);animateMarker(busMarker);setTimeout(()=>{updateRandomData();startIncrementalTimers();infoOverlay.classList.add('visible');placeholder.style.display='none'},500)}else{placeholder.innerHTML=`<i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i><p>Bus ${busId} tidak sedang beroperasi.</p>`}}
+        fleetListItems.forEach(item=>{item.addEventListener('click',()=>{fleetListItems.forEach(i=>i.classList.remove('selected'));item.classList.add('selected');displayBusInfo(item)})});
     </script>
 </body>
 </html>
